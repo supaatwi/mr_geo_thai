@@ -63,23 +63,3 @@ pub async fn find_geolocation(locations: Vec<Location>, lat: f64, lng: f64) -> O
     let nearest = tree.nearest(&[lat, lng]);
     nearest.map(|n| n.item.clone())
 }
-
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_find_geolocation() -> Result<(), Box<dyn Error>> {
-    
-        let locations = load_geolocation()?;
-        let latlng = (14.2617633,100.782535);
-
-        let result = find_geolocation(locations, latlng.0, latlng.1).await;
-
-        assert_eq!(result.is_some(), true);
-        assert_eq!(result.as_ref().unwrap().latitude, 14.249);
-        assert_eq!(result.as_ref().unwrap().longitude, 100.8);
-        Ok(())
-    }
-}

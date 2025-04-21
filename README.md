@@ -1,69 +1,97 @@
-# mr geolocation thailand
+# mr_geo_thai
+A Rust library for geolocation lookups in Thailand.
 
-This Rust library provides utilities for working with geolocation data in Thailand. It includes functionality for loading geolocation data from a CSV file, calculating geohashes, and finding the nearest location using a k-d tree.
+## Overview
+```mr_geo_thai``` is a library that provides efficient geolocation services for Thailand using latitude and longitude coordinates. It utilizes a KD-Tree data structure for fast nearest-neighbor searches.
 
 ## Features
+- Fast lookup of Thailand locations based on latitude/longitude coordinates
+- Asynchronous API support with Tokio
+- Geohash generation functionality
+- Simple and intuitive API
 
-- **Load Geolocation Data**: Parse a CSV file containing geolocation data into a vector of `Location` structs.
-- **Geohash Calculation**: Generate geohashes for given latitude and longitude coordinates.
-- **Find Nearest Location**: Use a k-d tree to find the nearest location to a given latitude and longitude.
+## Installation
+- Add this to your ```Cargo.toml```:
+```toml
+[dependencies]
+mr_geo_thai = "0.2.0"
+```
 
-## Data Structure
-
-The library uses the following `Location` struct to represent geolocation data:
-
+### Usage
 ```rust
-#[derive(Debug, Clone)]
-pub struct Location {
-    pub sub_district_th: String, // Sub-district name in Thai
-    pub sub_district_en: String, // Sub-district name in English
-    pub district_th: String,     // District name in Thai
-    pub district_en: String,     // District name in English
-    pub latitude: f64,           // Latitude
-    pub longitude: f64,          // Longitude
-    pub province_th: String,     // Province name in Thai
-    pub province_en: String,     // Province name in English
-    pub address: String,         // Full address in Thai
-    pub address_en: String,      // Full address in English
+use mr_geo_thai::{find_geolocation, load_geolocation, geohash};
+use std::error::Error;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+    // Load the geolocation database
+    let locations = load_geolocation()?;
+    
+    // Define coordinates
+    let lat = 14.2617633;
+    let lng = 100.782535;
+    
+    // Generate geohash
+    let hash = geohash(lat, lng)?;
+    println!("Geohash: {}", hash);
+    
+    // Find the nearest location
+    if let Some(location) = find_geolocation(locations, lat, lng).await {
+        println!("Found location: {} ({}, {})", location.address_en, location.latitude, location.longitude);
+        println!("Address: {} Sub-district, {} District, {} Province", 
+            location.sub_district_en, 
+            location.district_en, 
+            location.province_en);
+    } else {
+        println!("No location found for these coordinates");
+    }
+    
+    Ok(())
 }
 ```
 
-### Functions
-load_geolocation(file_path: &str) -> Result<Vec<Location>, Box<dyn Error>>
-Loads geolocation data from a CSV file and returns a vector of Location structs.
+## API Reference
+```rust 
+load_geolocation() -> Result<Vec<Location>, Box<dyn Error>>
+```
+Loads the geolocation database containing Thailand locations. The data is embedded in |the library using include_str!, so no external file loading is required.
 
-Parameters:
-file_path: Path to the CSV file.
-Returns: A Result containing a vector of Location structs or an error.
+```rust
 geohash(lat: f64, lng: f64) -> Result<String, Box<dyn Error>>
-Generates a geohash for the given latitude and longitude.
+```
+Generates a geohash string from the provided latitude and longitude coordinates.
 
-Parameters:
-lat: Latitude.
-lng: Longitude.
-Returns: A Result containing the geohash string or an error.
-find_geolocation(locations: Vec<Location>, lat: f64, lng: f64) -> Option<Location>
-Finds the nearest location to the given latitude and longitude using a k-d tree.
+```rust
+find_geolocation(locations: Vec<Location>, lat: f64, lng: f64) -> Future<Option<Location>>
+```
+Asynchronously finds the closest location in the database to the provided latitude and longitude.
 
-Parameters:
-- locations: A vector of Location structs.
-- lat: Latitude of the target point.
-- lng: Longitude of the target point.
-- Returns: An Option containing the nearest Location or None if no locations are found.
-
-#### Example Usage
-- Loading Geolocation Data
-- Calculating a Geohash
-- Finding the Nearest Location
+Returns ```Some(Location)``` if a match is found, or ```None``` if no matching location exists.
 
 
-#### Example Test Output
-Dependencies
-This library uses the following crates:
+```Location``` Structure
+```rust
+pub struct Location {
+    pub sub_district_th: String,  // Sub-district name in Thai
+    pub sub_district_en: String,  // Sub-district name in English
+    pub district_th: String,      // District name in Thai
+    pub district_en: String,      // District name in English
+    pub latitude: f64,            // Latitude coordinate
+    pub longitude: f64,           // Longitude coordinate
+    pub province_th: String,      // Province name in Thai
+    pub province_en: String,      // Province name in English
+    pub address: String,          // Full address in Thai
+    pub address_en: String,       // Full address in English
+}
+```
 
-csv: For reading CSV files.
-kd_tree: For k-d tree implementation.
-geohash: For geohash generation.
-tokio: For asynchronous testing.
-License
-This project is licensed under the MIT License. See the LICENSE file for details. ```
+
+## Dependencies
+- kd_tree: For efficient nearest-neighbor searches
+- geohash: For generating geohash strings from coordinates
+- csv: For reading data from the embedded CSV file
+
+### License
+MIT
+#### Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
