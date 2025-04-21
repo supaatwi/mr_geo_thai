@@ -1,13 +1,14 @@
 [package]
-name = "mr_geolocation_thailand"
-version = "0.1.0"
+name = "mr_geo_thai"
+version = "0.1.3"
 edition = "2024"
 license = "MIT"
 categories = ["development-tools"]
-repository = "https://github.com/supaatwi/mr_geolocation_thailand"
-documentation = "https://github.com/supaatwi/mr_geolocation_thailand/blob/main/README.md"
+description = "Tool find geolocation in thailand"
+repository = "https://github.com/supaatwi/mr_geo_thai"
+documentation = "https://github.com/supaatwi/mr_geo_thai/blob/main/README.md"
 authors = ["Supaat Wisessued <supaat.wi@gmail.com>"]
-keywords = ["mr_geolocation_thailand", "tool"]
+keywords = ["mr_geo_thai", "tool"]
 
 
 [dependencies]

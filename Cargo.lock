@@ -180,8 +180,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "mr_geolocation_thailand"
-version = "0.1.0"
+name = "mr_geo_thai"
+version = "0.1.3"
 dependencies = [
  "csv",
  "geohash",

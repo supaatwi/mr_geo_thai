@@ -1,8 +1,7 @@
-use csv::ReaderBuilder;
 use kd_tree::{KdPoint, KdTreeN};
 use std::error::Error;
-use std::fs::File;
 use geohash::{encode, Coord};
+use csv::Reader;
 
 #[derive(Debug, Clone)]
 pub struct Location {
@@ -30,12 +29,12 @@ impl KdPoint for Location {
     }
 }
 
-pub fn load_geolocation(file_path: &str) -> Result<Vec<Location>, Box<dyn Error>> {
-    let file = File::open(file_path)?;
-    let mut rdr = ReaderBuilder::new().from_reader(file);
+pub fn load_geolocation() -> Result<Vec<Location>, Box<dyn Error>> {
+    let csv_content = include_str!("../dataset.csv");
+    let mut reader = Reader::from_reader(csv_content.as_bytes());
 
     let mut locations: Vec<Location> = vec![];
-    for result in rdr.records() {
+    for result in reader.records() {
         let record = result?;
         let location = Location {
             sub_district_th: record[8].to_string(),
@@ -72,14 +71,15 @@ mod tests {
 
     #[tokio::test]
     async fn test_find_geolocation() -> Result<(), Box<dyn Error>> {
-        let file_path = "dataset.csv";
-        let locations = load_geolocation(file_path)?;
+    
+        let locations = load_geolocation()?;
         let latlng = (14.2617633,100.782535);
-        
 
         let result = find_geolocation(locations, latlng.0, latlng.1).await;
 
-        print!("{:?}", result);
+        assert_eq!(result.is_some(), true);
+        assert_eq!(result.as_ref().unwrap().latitude, 14.249);
+        assert_eq!(result.as_ref().unwrap().longitude, 100.8);
         Ok(())
     }
 }
